@@ -3,23 +3,46 @@
 import { useEffect, useState } from "react";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseForm from "./components/ExpenseForm";
+import LoadingOverlay from "./LoadingOverlay";
 
 export default function Home() {
   const [expenses, setExpenses] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/expenses")
-      .then((res) => res.json())
-      .then((data) => setExpenses(data))
-      .catch((err) => console.error(err));
+    fetchExpenses();
   }, []);
+
+  const fetchExpenses = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/expenses");
+
+      if (!response.ok) {
+        throw new Error("Failed to load expenses");
+      }
+
+      const data = await response.json();
+      setExpenses(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExpenseAdded = (newExpense) => {
     setExpenses((prev) => [...prev, newExpense]);
   };
 
   const handleDeleteExpense = async (id) => {
+    setLoading(true);
+    setError(null);
+
     try {
       const response = await fetch(
         `http://localhost:8080/api/expenses/${id}`,
@@ -30,15 +53,18 @@ export default function Home() {
         throw new Error("Delete failed");
       }
 
-      // State aktualisieren → Expense entfernen
       setExpenses((prev) => prev.filter((expense) => expense.id !== id));
     } catch (error) {
-      console.error(error);
-      alert("Error deleting expense");
+      setError(err.message)
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleUpdateExpense = async (updatedExpense) => {
+    setLoading(true);
+    setError(null);
+
     try {
       const response = await fetch(
         `http://localhost:8080/api/expenses/${updatedExpense.id}`,
@@ -62,17 +88,31 @@ export default function Home() {
       );
 
       setEditingId(null);
-    } catch (error) {
-      console.error(error);
-      alert("Error updating expense");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="p-4 space-y-4">
+    <main className="p-4 space-y-4 relative">
+      {loading && <LoadingOverlay />}
+
       <h1 className="text-2xl font-bold">Expense Tracker</h1>
 
-      <ExpenseForm onExpenseAdded={handleExpenseAdded} />
+      {error && (
+        <div className="bg-red-100 text-red-700 p-2 rounded">
+          {error}
+        </div>
+      )}
+
+      <ExpenseForm
+        onExpenseAdded={handleExpenseAdded}
+        setLoading={setLoading}
+        setError={setError}
+      />
+
       <ExpenseList
         expenses={expenses}
         editingId={editingId}

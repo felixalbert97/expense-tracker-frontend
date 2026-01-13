@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function ExpenseForm({ onExpenseAdded }) {
+export default function ExpenseForm({ onExpenseAdded, setLoading, setError }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
@@ -11,6 +11,8 @@ export default function ExpenseForm({ onExpenseAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Verhindert Seitenreload
+      setLoading(true);
+      setError(null);
 
     const expense = {
       amount: parseFloat(amount),
@@ -32,18 +34,19 @@ export default function ExpenseForm({ onExpenseAdded }) {
       }
 
       const newExpense = await response.json();
-      onExpenseAdded(newExpense); // Callback für Parent Component
+      onExpenseAdded(newExpense);
 
-      // Formular zurücksetzen
+      // Reset Form
       setAmount("");
       setCategory("");
       setDate("");
       setDescription("");
       setType("EXPENSE");
-    } catch (error) {
-      console.error(error);
-      alert("Error creating expense");
-    }
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setLoading(false);
+      }
   };
 
   return (
