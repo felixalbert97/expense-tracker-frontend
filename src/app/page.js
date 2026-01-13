@@ -6,6 +6,7 @@ import ExpenseForm from "./components/ExpenseForm";
 
 export default function Home() {
   const [expenses, setExpenses] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/expenses")
@@ -19,23 +20,53 @@ export default function Home() {
   };
 
   const handleDeleteExpense = async (id) => {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/api/expenses/${id}`,
-      { method: "DELETE" }
-    );
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/expenses/${id}`,
+        { method: "DELETE" }
+      );
 
-    if (!response.ok) {
-      throw new Error("Delete failed");
+      if (!response.ok) {
+        throw new Error("Delete failed");
+      }
+
+      // State aktualisieren → Expense entfernen
+      setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+    } catch (error) {
+      console.error(error);
+      alert("Error deleting expense");
     }
+  };
 
-    // State aktualisieren → Expense entfernen
-    setExpenses((prev) => prev.filter((expense) => expense.id !== id));
-  } catch (error) {
-    console.error(error);
-    alert("Error deleting expense");
-  }
-};
+  const handleUpdateExpense = async (updatedExpense) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/expenses/${updatedExpense.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedExpense),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Update failed");
+      }
+
+      const savedExpense = await response.json();
+
+      setExpenses((prev) =>
+        prev.map((expense) =>
+          expense.id === savedExpense.id ? savedExpense : expense
+        )
+      );
+
+      setEditingId(null);
+    } catch (error) {
+      console.error(error);
+      alert("Error updating expense");
+    }
+  };
 
   return (
     <main className="p-4 space-y-4">
@@ -44,6 +75,10 @@ export default function Home() {
       <ExpenseForm onExpenseAdded={handleExpenseAdded} />
       <ExpenseList
         expenses={expenses}
+        editingId={editingId}
+        onStartEdit={setEditingId}
+        onCancelEdit={() => setEditingId(null)}
+        onSaveEdit={handleUpdateExpense}
         onDeleteExpense={handleDeleteExpense}
       />
     </main>
