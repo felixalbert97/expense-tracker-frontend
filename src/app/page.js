@@ -18,12 +18,34 @@ export default function Home() {
     setExpenses((prev) => [...prev, newExpense]);
   };
 
+  const handleDeleteExpense = async (id) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/expenses/${id}`,
+      { method: "DELETE" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Delete failed");
+    }
+
+    // State aktualisieren → Expense entfernen
+    setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+  } catch (error) {
+    console.error(error);
+    alert("Error deleting expense");
+  }
+};
+
   return (
     <main className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Expense Tracker</h1>
 
       <ExpenseForm onExpenseAdded={handleExpenseAdded} />
-      <ExpenseList expenses={expenses} />
+      <ExpenseList
+        expenses={expenses}
+        onDeleteExpense={handleDeleteExpense}
+      />
     </main>
   );
 }
