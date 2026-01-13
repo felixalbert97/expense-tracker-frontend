@@ -1,21 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseForm from "./components/ExpenseForm";
-import { useState } from "react";
 
 export default function Home() {
-  const [refreshFlag, setRefreshFlag] = useState(false);
+  const [expenses, setExpenses] = useState([]);
 
-  const handleExpenseAdded = () => {
-    setRefreshFlag(!refreshFlag); // Toggle, um ExpenseList neu zu rendern
+  useEffect(() => {
+    fetch("http://localhost:8080/api/expenses")
+      .then((res) => res.json())
+      .then((data) => setExpenses(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  const handleExpenseAdded = (newExpense) => {
+    setExpenses((prev) => [...prev, newExpense]);
   };
 
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Expense Tracker</h1>
+    <main className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Expense Tracker</h1>
+
       <ExpenseForm onExpenseAdded={handleExpenseAdded} />
-      <ExpenseList key={refreshFlag} />
+      <ExpenseList expenses={expenses} />
     </main>
   );
 }
