@@ -54,7 +54,7 @@ export default function Home() {
       }
 
       setExpenses((prev) => prev.filter((expense) => expense.id !== id));
-    } catch (error) {
+    } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false);
@@ -107,12 +107,6 @@ export default function Home() {
         </div>
       )}
 
-      <ExpenseForm
-        onExpenseAdded={handleExpenseAdded}
-        setLoading={setLoading}
-        setError={setError}
-      />
-
       <ExpenseList
         expenses={expenses}
         editingId={editingId}
@@ -120,6 +114,12 @@ export default function Home() {
         onCancelEdit={() => setEditingId(null)}
         onSaveEdit={handleUpdateExpense}
         onDeleteExpense={handleDeleteExpense}
+      />
+
+      <ExpenseForm
+        onExpenseAdded={handleExpenseAdded}
+        setLoading={setLoading}
+        setError={setError}
       />
     </main>
   );
