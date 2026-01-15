@@ -23,7 +23,7 @@ export default function ExpenseForm({ onExpenseAdded, setLoading, setError }) {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/expenses", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expenses`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(expense),
@@ -48,53 +48,7 @@ export default function ExpenseForm({ onExpenseAdded, setLoading, setError }) {
           setLoading(false);
       }
   };
-  /*
-  return (
-    <form onSubmit={handleSubmit} className="space-y-2 p-2 border rounded">
-      <input
-        type="number"
-        step="0.01"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        required
-        className="border p-1 rounded w-full"
-      />
-      <input
-        type="text"
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        required
-        className="border p-1 rounded w-full"
-      />
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        required
-        className="border p-1 rounded w-full"
-      />
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="border p-1 rounded w-full"
-      />
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-        className="border p-1 rounded w-full"
-      >
-        <option value="EXPENSE">Expense</option>
-        <option value="INCOME">Income</option>
-      </select>
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full">
-        Add
-      </button>
-    </form>
-  ); */
+
 
   return (
     <form

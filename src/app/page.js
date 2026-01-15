@@ -20,7 +20,7 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:8080/api/expenses");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expenses`);
 
       if (!response.ok) {
         throw new Error("Failed to load expenses");
@@ -44,8 +44,7 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/expenses/${id}`,
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expenses/${id}`,
         { method: "DELETE" }
       );
 
@@ -67,7 +66,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/expenses/${updatedExpense.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/expenses/${updatedExpense.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
